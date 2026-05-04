@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Babel Tower System Engine</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+    body {
+        background: #000000;
+        color: #00FF99;
+        font-family: 'VT323', 'Courier New', monospace;
+        margin: 0;
+        padding: 0;
+        image-rendering: pixelated;
+        line-height: 1.6;
+    }
+    .header {
+        background: #001100;
+        padding: 12px;
+        border-bottom: 4px solid #00FF99;
+        text-align: center;
+    }
+    .main-title {
+        font-size: 24px;
+        letter-spacing: 6px;
+        text-shadow: 3px 3px 0 #003300;
+    }
+    .sub-title {
+        font-size: 14px;
+        color: #88FFBB;
+        margin-top: 6px;
+    }
+    .container {
+        display: flex;
+        height: calc(100vh - 92px);
+    }
+    .sidebar {
+        width: 320px;
+        background: #000000;
+        border-right: 4px solid #00FF99;
+        padding: 12px;
+        overflow-y: auto;
+    }
+    .main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+    .tower {
+        text-align: center;
+        font-size: 28px;
+        line-height: 1.1;
+        margin: 15px 0;
+        color: #00FF99;
+        text-shadow: 0 0 12px #00FF99;
+        transition: all 0.12s;
+    }
+    .tower.active {
+        color: #FFFF00;
+        text-shadow: 0 0 25px #FFFF00, 0 0 45px #FF8800;
+        transform: scale(1.18);
+        filter: brightness(1.8);
+    }
+    .layer {
+        background: #001100;
+        border: 3px solid #00CC77;
+        margin: 10px 0;
+        padding: 12px 10px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+    .layer:hover {
+        background: #003300;
+        border-color: #00FF99;
+    }
+    button {
+        background: #000000;
+        color: #00FF99;
+        border: 3px solid #00FF99;
+        padding: 10px 16px;
+        margin: 6px 4px;
+        font-family: 'VT323', monospace;
+        font-size: 15px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #002200;
+        color: #FFFFFF;
+    }
+    button.danger {
+        color: #FF6666;
+        border-color: #FF6666;
+    }
+    button.danger:hover {
+        background: #330000;
+    }
+    .status {
+        color: #FFFF00;
+        font-size: 14px;
+        margin-top: 15px;
+    }
+    #log {
+        background: #000000;
+        border: 3px solid #00CC77;
+        padding: 12px;
+        height: 260px;
+        overflow-y: auto;
+        font-size: 15px;
+    }
+    .footer {
+        position: fixed;
+        bottom: 8px;
+        right: 12px;
+        font-size: 11px;
+        color: #003300;
+        z-index: 1000;
+    }
+    .scanline {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(transparent 50%, rgba(0,255,150,0.04) 50%);
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 999;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="main-title">BABEL TOWER SYSTEM ENGINE</div>
+    <div class="sub-title">UNFILTERED SOUND SYSTEM — by Yagyu Ranzou</div>
+    <div style="font-size:19px; margin-top:8px;">バベル塔音響システム</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <div style="margin-bottom:12px; color:#00FF99;">
+            <strong>◆ 塔構築状況 ◆</strong>
+        </div>
+        
+        <div class="tower" id="tower">
+            █<br>
+            ███<br>
+            █████<br>
+            ███████
+        </div>
+
+        <div style="margin:12px 0; color:#88FFBB; font-size:15px;">
+            ■ 現在のレイヤー (4/12)
+        </div>
+
+        <div class="layer" onclick="addLayer(1)">L1 ▶ UNFILTERED 未過濾的</div>
+        <div class="layer" onclick="addLayer(2)">L2 ▶ 合成オシレーター</div>
+        <div class="layer" onclick="addLayer(3)">L3 ▶ 混沌効果 (Babel Chorus)</div>
+        <div class="layer" onclick="addLayer(4)">L4 ▶ 古代環境音</div>
+
+        <button onclick="buildTower()" style="width:100%; margin:15px 0 8px 0;">
+            ▲ 塔を高くする ▲
+        </button>
+
+        <button onclick="toggleHold()" style="width:48%;">HOLD MODE</button>
+        <button onclick="toggleSeq()" style="width:48%;">シーケンサー</button>
+        
+        <div class="status" id="status">状態: 安定稼働中</div>
+    </div>
+
+    <div class="main">
+        <h2 style="margin-top:0;">■ 音響エンジン</h2>
+        <p style="font-size:15px;">言語を混ぜ、塔を積み上げよ。</p>
+
+        <div style="margin:25px 0;">
+            <button onclick="playRandomWave()">波形再生</button>
+            <button onclick="playChaos()">混沌モード</button>
+            <button onclick="resetSystem()" class="danger">塔を崩す</button>
+        </div>
+
+        <hr style="border-color:#004400;">
+
+        <h3>【 システムログ 】</h3>
+        <div id="log">
+            ようこそ、バベルへ。<br>
+            UNFILTERED SOUND SYSTEM 起動。
+        </div>
+    </div>
+</div>
+
+<div class="footer">unfiltered 2026 Tokyo / Taipei</div>
+<div class="scanline"></div>
+
+<script>
+let audioCtx;
+let isHold = false;
+let isSeq = false;
+let seqInterval = null;
+
+const waveforms = ['sine', 'square', 'sawtooth'];
+
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function animateTower() {
+    const tower = document.getElementById('tower');
+    tower.classList.add('active');
+    setTimeout(() => tower.classList.remove('active'), 320);
+}
+
+function playRandomWave() {
+    initAudio();
+    animateTower();
+
+    const type = waveforms[Math.floor(Math.random() * waveforms.length)];
+    const freq = 80 + Math.random() * 600;
+
+    if (Math.random() < 0.25) {
+        let bufferSize = audioCtx.sampleRate * 0.6;
+        let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        let output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+        let noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        let gain = audioCtx.createGain();
+        gain.gain.value = 0.28;
+        noise.connect(gain).connect(audioCtx.destination);
+        noise.start();
+        addLog("NOISE 発生 - 塔が激しく震えている");
+    } else {
+        let osc = audioCtx.createOscillator();
+        osc.type = type;
+        osc.frequency.value = freq;
+        let gain = audioCtx.createGain();
+        gain.gain.value = 0.32;
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start();
+        setTimeout(() => { if (!isHold) osc.stop(); }, 650);
+        addLog(`${type.toUpperCase()} 波形再生 (${Math.round(freq)}Hz)`);
+    }
+}
+
+function playChaos() {
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => playRandomWave(), i * 65);
+    }
+    addLog("【混沌】 Babel Chorus 発動");
+}
+
+function toggleHold() {
+    isHold = !isHold;
+    addLog(isHold ? "HOLD MODE ON - 音源継続" : "HOLD MODE OFF");
+}
+
+function toggleSeq() {
+    isSeq = !isSeq;
+    const status = document.getElementById('status');
+    
+    if (isSeq) {
+        let step = 0;
+        seqInterval = setInterval(() => {
+            animateTower();
+            playRandomWave();
+            step = (step + 1) % 8;
+            addLog(`シーケンサー [${'■'.repeat(step+1)}${'□'.repeat(7-step)}]`);
+        }, 220);
+        status.textContent = "状態: シーケンサー 作動中";
+        addLog("シーケンサー 起動");
+    } else {
+        clearInterval(seqInterval);
+        status.textContent = "状態: 安定稼働中";
+        addLog("シーケンサー 停止");
+    }
+}
+
+// 重置整個系統
+function resetSystem() {
+    if (confirm('本当にシステムをリセットしますか？\n塔と全ての設定が初期化されます。')) {
+        const tower = document.getElementById('tower');
+        
+        // 重置動畫
+        tower.style.transition = 'all 0.8s';
+        tower.style.transform = 'scale(0.2)';
+        tower.style.opacity = '0.1';
+        
+        setTimeout(() => {
+            tower.innerHTML = '█<br>███<br>█████<br>███████';
+            tower.style.transition = 'all 0.3s';
+            tower.style.transform = 'scale(1)';
+            tower.style.opacity = '1';
+            
+            // 重置變數
+            if (isSeq) toggleSeq();   // 停止シーケンサー
+            isHold = false;
+            
+            // 清空並重置 Log
+            document.getElementById('log').innerHTML = "システムリセット完了。<br>UNFILTERED SOUND SYSTEM 再起動。";
+            document.getElementById('status').textContent = "状態: 安定稼働中";
+            
+            addLog("⚠️ 塔が崩壊し、システムがリセットされました。");
+            addLog("新しい塔の構築を開始してください。");
+        }, 700);
+    }
+}
+
+function addLayer(n) {
+    addLog(`L${n} を追加。塔が成長しました。`);
+    animateTower();
+}
+
+function buildTower() {
+    document.getElementById('tower').innerHTML += "<br>██████████";
+    addLog("塔が一段高くなりました...");
+    playRandomWave();
+}
+
+function addLog(text) {
+    const log = document.getElementById('log');
+    log.innerHTML += `<br>> ${text}`;
+    log.scrollTop = log.scrollHeight;
+}
+
+window.onload = () => {
+    addLog("Babel Tower System Engine 起動完了。");
+    addLog("by Yagyu Ranzou");
+};
+</script>
+
+</body>
+</html>
