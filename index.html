@@ -9,17 +9,18 @@
     body {
         background: #000000;
         color: #00FF99;
-        font-family: 'Press Start 2P', 'Courier New', monospace;
+        font-family: 'Press Start 2P', cursive;
         margin: 0;
         padding: 0;
         image-rendering: pixelated;
         line-height: 1.5;
+        overflow: hidden;
     }
+
     .header {
         background: #001100;
         padding: 18px 20px;
         border-bottom: 5px solid #00FF99;
-        text-align: left;
     }
     .main-title {
         font-size: 38px;
@@ -39,6 +40,7 @@
         color: #00FFCC;
         text-shadow: -2px -2px 0 #003300, 2px -2px 0 #003300, -2px 2px 0 #003300, 2px 2px 0 #003300;
     }
+
     .container {
         display: flex;
         height: calc(100vh - 118px);
@@ -47,74 +49,72 @@
     .main { flex: 3; min-width: 480px; background: #000000; padding: 15px; border-right: 4px solid #00FF99; overflow-y: auto; }
     .bible { flex: 1; min-width: 260px; background: #001100; padding: 15px; overflow-y: auto; }
 
+    .tower-box {
+        height: 180px;
+        border: 3px solid #003300;
+        margin: 15px 0;
+        overflow-y: auto;
+        background: #000500;
+    }
     .tower {
         text-align: center;
         font-size: 28px;
         line-height: 1.1;
-        margin: 15px 0;
         color: #00FF99;
         text-shadow: 0 0 12px #00FF99;
-        transition: all 0.12s;
+        transition: all 0.1s;
     }
-    .tower.active {
-        color: #FFFF00;
-        text-shadow: 0 0 25px #FFFF00, 0 0 45px #FF8800;
-        transform: scale(1.18);
+    .tower.active { color: #FFFF00; text-shadow: 0 0 25px #FFFF00; transform: scale(1.05); }
+
+    .button-row {
+        display: flex;
+        gap: 10px;
+        margin: 25px 0;
     }
+    .button-row button { flex: 1; }
 
     .layer {
-        padding: 12px;
-        margin: 8px 0;
-        background: #001100;
-        border: 3px solid #00CC77;
-        cursor: pointer;
-        font-weight: bold;
+        padding: 12px; margin: 8px 0;
+        background: #001100; border: 3px solid #00CC77;
+        cursor: pointer; font-weight: bold; font-size: 11px;
     }
     .layer:hover { background: #003300; border-color: #00FF99; }
 
     button {
-        background: #000000;
-        color: #00FF99;
-        border: 3px solid #00FF99;
-        padding: 10px 16px;
-        margin: 6px 4px;
-        font-family: 'Press Start 2P', monospace;
-        font-size: 15px;
-        cursor: pointer;
-        width: 100%;
-        font-weight: bold;
+        background: #000000; color: #00FF99; border: 3px solid #00FF99;
+        padding: 10px 16px; margin: 6px 0; width: 100%;
+        font-family: 'Press Start 2P', cursive; font-size: 13px; cursor: pointer;
     }
-    button:hover { background: #002200; color: #FFFFFF; }
+    button:hover { background: #002200; color: #fff; }
+    button.active { background: #00FF99 !important; color: #000 !important; }
     button.danger { color: #FF6666; border-color: #FF6666; }
-    button.danger:hover { background: #330000; }
 
-    .bible-log {
-        background: #000000;
+    #log {
+        background: #000;
         border: 3px solid #00CC77;
         padding: 12px;
-        height: 420px;
+        height: 380px;
         overflow-y: auto;
-        font-size: 14.5px;
+        font-size: 15px;
+        color: #00FF99;
+        font-family: 'Press Start 2P', cursive;
         line-height: 1.8;
-        font-weight: bold;
     }
-    .footer {
-        position: fixed;
-        bottom: 8px;
-        right: 12px;
-        font-size: 11px;
-        color: #003300;
+
+    .bible-log {
+        background: #000000; border: 3px solid #00CC77;
+        padding: 12px; height: 420px; overflow-y: auto;
+        font-size: 14.5px; line-height: 1.8; color: #FFDD88;
+        font-family: 'Press Start 2P', cursive;
     }
+
+    .footer { position: fixed; bottom: 8px; right: 12px; font-size: 11px; color: #003300; }
     .scanline {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%;
-        height: 100%;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: linear-gradient(transparent 50%, rgba(0,255,150,0.04) 50%);
-        background-size: 100% 4px;
-        pointer-events: none;
-        z-index: 999;
+        background-size: 100% 4px; pointer-events: none; z-index: 999;
     }
+    .caption { font-size: 10px; color: #55AA88; margin-top: -10px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -128,39 +128,34 @@
 <div class="container">
     <div class="sidebar">
         <strong>◆ 塔構築状況 ◆</strong>
-        <div class="tower" id="tower">
-            █<br>███<br>█████<br>███████
+        <div class="tower-box" id="tower-scroll">
+            <div class="tower" id="tower">█<br>███<br>█████<br>███████</div>
         </div>
-        <div style="margin:12px 0; color:#88FFBB;" id="layer-count">■ 現在のレイヤー (4/12)</div>
+        <div style="margin:12px 0; color:#88FFBB; font-size: 11px;" id="layer-count">■ 現在のレイヤー (4/12)</div>
         
         <div id="layers"></div>
 
-        <button onclick="addNewLayer()" style="margin-top:15px;">＋ 新增レイヤー</button>
-        <button onclick="buildTower()">▲ 塔を高くする ▲</button>
-        <button onclick="toggleHold()">HOLD MODE</button>
-        <button onclick="toggleSeq()">シーケンサー</button>
+        <button onclick="addNewLayer()" style="margin-top:15px;">＋ 新規レイヤー追加</button>
+        <button onclick="buildTower()">▲ 塔をさらに高く ▲</button>
+        <button onclick="toggleHold()" id="hold-btn">HOLD MODE</button>
+        <button onclick="toggleSeq()" id="seq-btn">シーケンサー</button>
     </div>
 
     <div class="main">
         <h2>■ 音響エンジン</h2>
-        <p>言語を混ぜ、塔を積み上げよ。</p>
-
-        <div style="margin:25px 0;">
+        <div class="caption">言語を混ぜ、塔を積み上げよ</div>
+        <div class="button-row">
             <button onclick="playRandomWave()">波形再生</button>
             <button onclick="playChaos()">混沌モード</button>
             <button onclick="resetSystem()" class="danger">塔を崩す</button>
         </div>
 
         <h3>【 システムログ 】</h3>
-        <div id="log" style="background:#000; border:3px solid #00CC77; padding:12px; height:380px; overflow-y:auto; font-size:15px;">
-            ようこそ、バベルへ。<br>
-            UNFILTERED SOUND SYSTEM 起動。
-        </div>
+        <div id="log">ようこそ、バベルへ。</div>
     </div>
 
     <div class="bible">
         <strong>◆ BIBLE ◆</strong>
-        <div style="margin:10px 0; color:#FFDD88; font-size:14px;">Sound Seed Text</div>
         <div id="bible-log" class="bible-log">
             ここに声の種から生まれた言葉が現れる。
         </div>
@@ -176,103 +171,47 @@ let isHold = false;
 let isSeq = false;
 let seqInterval = null;
 let currentLayers = 4;
+let seqStep = 0;
 
-const waveforms = ['sine', 'square', 'sawtooth'];
-
-const crazyNames = [
-    "L5 ▶ 狂気の言語融合", "L6 ▶ 崩壊コーラス", "L7 ▶ 虚空の叫び", 
-    "L8 ▶ 無限バベル", "L9 ▶ 塔の怨念", "L10 ▶ 神の沈黙", 
-    "L11 ▶ 混沌の胎動", "L12 ▶ 最終未過濾"
-];
+const waveforms = ['sine', 'square', 'sawtooth', 'triangle', 'noise'];
+const crazyNames = ["L5 ▶ 狂気の言語融合", "L6 ▶ 崩壊コーラス", "L7 ▶ 虚空の叫び", "L8 ▶ 無限バベル", "L9 ▶ 塔の怨念", "L10 ▶ 神の沈黙", "L11 ▶ 混沌の胎動", "L12 ▶ 最終未過濾"];
+const bibleSeeds = ["塔は高く、天に届かんとする。","言葉は乱れ、人は散りゆく。","混沌の中より、新たな響きが生まれる。","聞け、未だ見えぬ声の叫びを。","我は音の源、永遠の未過濾。"];
 
 function initAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-function updateLayerCount() {
-    document.getElementById('layer-count').textContent = `■ 現在のレイヤー (${currentLayers}/12)`;
+function createNoiseBuffer() {
+    const bufferSize = audioCtx.sampleRate * 2;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+    return buffer;
 }
 
-function renderLayers() {
-    const container = document.getElementById('layers');
-    container.innerHTML = '';
-    
-    for (let i = 1; i <= currentLayers; i++) {
-        const div = document.createElement('div');
-        div.className = 'layer';
-        if (i <= 4) {
-            div.innerHTML = `L${i} ▶ ${i===1 ? 'UNFILTERED 未過濾的' : i===2 ? '合成オシレーター' : i===3 ? '混沌効果 (Babel Chorus)' : '古代環境音'}`;
-        } else {
-            div.innerHTML = crazyNames[i-5];
-        }
-        div.onclick = () => { addLog(`L${i} 発動`); animateTower(); };
-        container.appendChild(div);
-    }
-}
-
-function addNewLayer() {
-    if (currentLayers >= 12) {
-        addLog("【警告】塔已達上限 (12/12)");
-        return;
-    }
-    currentLayers++;
-    renderLayers();
-    updateLayerCount();
-    addLog(`L${currentLayers} を追加 - 混沌が増大`);
-    animateTower();
-}
-
-function animateTower() {
-    const tower = document.getElementById('tower');
-    tower.classList.add('active');
-    setTimeout(() => tower.classList.remove('active'), 300);
-}
-
-// 其餘音效函數保持不變（playRandomWave, playChaos, toggleHold, toggleSeq, resetSystem 等）
-const bibleSeeds = ["塔は高く、天に届かんとする。","言葉は乱れ、人は散りゆく。","混沌の中より、新たな響きが生まれる。","聞け、未だ見えぬ声の叫びを。","我は音の源、永遠の未過濾。"];
-
-function generateBibleText(freq) {
-    const seed = Math.floor(freq + Date.now() % 1000);
-    const index = seed % bibleSeeds.length;
-    document.getElementById('bible-log').innerHTML += `<br>> ${bibleSeeds[index]}`;
-    document.getElementById('bible-log').scrollTop = 9999;
-}
-
-function playRandomWave() {
+function playTone(freq, type, dur) {
     initAudio();
-    animateTower();
-    const type = waveforms[Math.floor(Math.random() * 3)];
-    const freq = 80 + Math.random() * 600;
-    addLog(`${type.toUpperCase()} (${Math.round(freq)}Hz)`);
-    generateBibleText(freq);
-}
-
-function playChaos() {
-    for (let i = 0; i < 10; i++) setTimeout(() => playRandomWave(), i * 65);
-    addLog("【混沌】 Babel Chorus 発動");
-}
-
-function toggleHold() { isHold = !isHold; addLog(isHold ? "HOLD MODE ON" : "HOLD MODE OFF"); }
-
-function toggleSeq() { /* 略 */ addLog(isSeq ? "シーケンサー 停止" : "シーケンサー 起動"); isSeq = !isSeq; }
-
-function resetSystem() {
-    if (confirm('本当にシステムをリセットしますか？')) {
-        currentLayers = 4;
-        renderLayers();
-        updateLayerCount();
-        document.getElementById('tower').innerHTML = '█<br>███<br>█████<br>███████';
-        document.getElementById('log').innerHTML = "システムリセット完了。<br>新しい塔を築け。";
-        addLog("⚠️ 完全リセット");
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    
+    if (type === 'noise') {
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = createNoiseBuffer();
+        noise.connect(gain);
+        noise.start();
+        if (!isHold) gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+        noise.stop(audioCtx.currentTime + (isHold ? 0.4 : dur));
+    } else {
+        const osc = audioCtx.createOscillator();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.connect(gain);
+        osc.start();
+        if (!isHold) gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+        osc.stop(audioCtx.currentTime + (isHold ? 0.6 : dur));
     }
-}
-
-function addLayer(n) { addLog(`L${n} 発動`); animateTower(); }
-
-function buildTower() {
-    document.getElementById('tower').innerHTML += "<br>██████████";
-    addLog("塔が成長");
-    playRandomWave();
+    gain.connect(audioCtx.destination);
 }
 
 function addLog(text) {
@@ -281,12 +220,104 @@ function addLog(text) {
     log.scrollTop = log.scrollHeight;
 }
 
-window.onload = () => {
-    renderLayers();
-    updateLayerCount();
-    addLog("Babel Tower System Engine 起動");
-};
-</script>
+function playRandomWave(isFromSeq = false) {
+    const type = waveforms[Math.floor(Math.random() * waveforms.length)];
+    const freq = 100 + Math.random() * 900;
+    playTone(freq, type, 0.3);
+    animateTower();
+    
+    if (isFromSeq) {
+        seqStep++;
+        const typeName = type === 'noise' ? 'ノイズバースト' : type.toUpperCase();
+        addLog(`[工程:${seqStep}] ${typeName} 抽出中...`);
+    } else {
+        const typeName = type === 'noise' ? 'ノイズ' : type.toUpperCase();
+        addLog(`${typeName} 波形を生成 (${Math.round(freq)}Hz)`);
+    }
 
+    const bLog = document.getElementById('bible-log');
+    bLog.innerHTML += `<br>> ${bibleSeeds[Math.floor(Math.random()*bibleSeeds.length)]}`;
+    bLog.scrollTop = bLog.scrollHeight;
+}
+
+function toggleSeq() {
+    isSeq = !isSeq;
+    const btn = document.getElementById('seq-btn');
+    if (isSeq) {
+        btn.classList.add('active');
+        btn.textContent = "SEQ: 稼働中";
+        seqInterval = setInterval(() => playRandomWave(true), 150);
+        addLog("シーケンサー 起動完了");
+    } else {
+        btn.classList.remove('active');
+        btn.textContent = "シーケンサー";
+        clearInterval(seqInterval);
+        addLog("シーケンサー 停止");
+    }
+}
+
+function toggleHold() {
+    isHold = !isHold;
+    document.getElementById('hold-btn').classList.toggle('active');
+    addLog(isHold ? "持続モード：有効" : "持続モード：解除");
+}
+
+function buildTower() {
+    const tower = document.getElementById('tower');
+    const scroll = document.getElementById('tower-scroll');
+    const bricks = ["█", "███", "█████", "███████", "█████████"];
+    tower.innerHTML += "<br>" + bricks[Math.floor(Math.random() * bricks.length)];
+    scroll.scrollTop = scroll.scrollHeight;
+    addLog("塔の高度が上昇中...");
+    playRandomWave();
+}
+
+function animateTower() {
+    const t = document.getElementById('tower');
+    t.classList.add('active');
+    setTimeout(() => t.classList.remove('active'), 50);
+}
+
+function playChaos() {
+    addLog("混沌プロトコル『Babel Chorus』実行");
+    for (let i = 0; i < 12; i++) setTimeout(() => playRandomWave(), i * 65);
+}
+
+function resetSystem() {
+    if (confirm('警告：システムを完全に初期化しますか？')) {
+        location.reload();
+    }
+}
+
+function addNewLayer() {
+    if (currentLayers >= 12) {
+        addLog("【警告】塔の限界に達しました (12/12)");
+        return;
+    }
+    currentLayers++;
+    document.getElementById('layer-count').textContent = `■ 現在のレイヤー (${currentLayers}/12)`;
+    renderLayers();
+    addLog(`新規レイヤー L${currentLayers} 接続完了`);
+}
+
+function renderLayers() {
+    const container = document.getElementById('layers');
+    container.innerHTML = '';
+    for (let i = 1; i <= currentLayers; i++) {
+        const div = document.createElement('div');
+        div.className = 'layer';
+        if (i <= 4) {
+            const staticNames = ["", "UNFILTERED 未過濾的", "合成オシレーター", "混沌効果 (Babel Chorus)", "古代環境音"];
+            div.innerHTML = `L${i} ▶ ${staticNames[i]}`;
+        } else {
+            div.innerHTML = crazyNames[i-5];
+        }
+        div.onclick = () => { addLog(`レイヤー L${i} 信号受信`); playRandomWave(); };
+        container.appendChild(div);
+    }
+}
+
+window.onload = renderLayers;
+</script>
 </body>
 </html>
