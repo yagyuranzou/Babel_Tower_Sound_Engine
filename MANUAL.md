@@ -78,11 +78,17 @@ BABEL TOWER SYSTEM ENGINE - TECHNICAL REFERENCE MANUAL
 
 ■ 第4章：警告事項
   
-   [警告] SYSTEM FAILURE：
-       第12レイヤー接続時、システムは「神未発見（GOD NOT FOUND）」と判定。操作系を完全ロックする。
+[警告] SYSTEM FAILURE：
+       
+  第12レイヤー接続時、システムは「神未発見（GOD NOT FOUND）」と判定。操作系を完全ロックする。
    
-   [警告] 復旧手順：
-       ロック状態でのCLI入力は無効化され、赤色の警告表示が継続される。復旧には物理的な「塔を崩壊させる」コマンドの実行が不可避となる。
+[警告] 復旧手順：
+  
+  ロック状態でのCLI入力は無効化され、赤色の警告表示が継続される。復旧には物理的な「塔を崩壊させる」コマンドの実行が不可避となる。
+
+
+
 
 UNFILTERED 2026 - TOKYO / TAIPEI
+
 ARCHITECT: YAGYU RANZOU
